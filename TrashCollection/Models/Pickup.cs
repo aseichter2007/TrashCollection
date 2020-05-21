@@ -7,17 +7,23 @@ using System.Threading.Tasks;
 
 namespace TrashCollection.Models
 {
-    public class Employee
+    public class Pickup
     {
         [Key]
         public int Id { get; set; }
+        [ForeignKey("Customer")]
+        public int CustomerId { get; set; }
+        public Customer Customer { get; set; }
         [ForeignKey("Address")]
         public int AddressId { get; set; }
         public Address Address { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }  
+        public int Date { get; set; }
+        public bool regular { get; set; }
+        public bool Confirmed { get; set; }
+        public bool earlyPickup { get; set; }
+        public double price { get; set; }
 
-        IEnumerable<Pickup> pickups { get; set; }
+
 
     }
 }

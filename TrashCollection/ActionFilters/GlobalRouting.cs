@@ -19,7 +19,7 @@ namespace TrashCollection.ActionFilters
         public void OnActionExecuted(ActionExecutedContext context)
         {
             var controller = context.RouteData.Values["controller"];
-            if (controller.Equals("home"))
+            if (controller.Equals("Home"))
             {
                 if (_claimsPrincipal.IsInRole("Customer"))
                 {

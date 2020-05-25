@@ -17,10 +17,14 @@ namespace TrashCollection.Models
         [ForeignKey("Address")]
         public int AddressId { get; set; }
         public Address Address { get; set; }
+        [Display(Name = "Pickup date:")]
+
         public int Date { get; set; }
         public bool regular { get; set; }
         public bool Confirmed { get; set; }
         public bool earlyPickup { get; set; }
+        [Display(Name = "This pickup cost:")]
+
         public double price { get; set; }
 
 

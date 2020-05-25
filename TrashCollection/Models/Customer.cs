@@ -20,11 +20,21 @@ namespace TrashCollection.Models
         public Address Address { get; set; }
         [ForeignKey("Weekday")]
         public int DayId { get; set; }
-        public Weekday Weekday { get; set; }       
+        public Weekday Weekday { get; set; }
+        [Display(Name = "First name:")]
+
         public string FirstName { get; set; }
-        public string LastName { get; set; }       
+        [Display(Name = "Last name")]
+
+        public string LastName { get; set; }
+        [Display(Name = "Suspend start date:")]
+
         public string SuspendStart { get; set; }
+        [Display(Name = "Suspend end date:")]
+
         public string SuspendEnd { get; set; }
+        [Display(Name = "Balance due:")]
+
         public string Balance { get; set; }
     }
 }

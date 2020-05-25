@@ -18,9 +18,14 @@ namespace TrashCollection.Models
         [ForeignKey("Address")]
         public int AddressId { get; set; }
         public Address Address { get; set; }
+        [Display(Name = "First name:")]
+
         public string FirstName { get; set; }
+        [Display(Name = "Last name:")]
+
         public string LastName { get; set; }  
 
+        
         IEnumerable<Pickup> pickups { get; set; }
 
     }

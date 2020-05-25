@@ -23,7 +23,8 @@ namespace TrashCollection.Models
         public Weekday Weekday { get; set; }       
         public string FirstName { get; set; }
         public string LastName { get; set; }       
-        public string SuspendStert { get; set; }
+        public string SuspendStart { get; set; }
         public string SuspendEnd { get; set; }
+        public string Balance { get; set; }
     }
 }

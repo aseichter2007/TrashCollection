@@ -47,6 +47,9 @@ namespace TrashCollection.Controllers
 
                 return View("CreateAddressPage",customer.Address);
             }
+            var pickups = _context.Pickups.Where(p => p.CustomerId == customer.Id);
+            ViewBag.pickups = pickups.ToList();
+
             return View(customer);
         }
 
@@ -110,14 +113,15 @@ namespace TrashCollection.Controllers
                 return NotFound();
             }
 
-            var customer = await _context.Customers.FindAsync(id);
+            var customer = _context.Customers.Where(c => c.Id == id).Include(c => c.Address).Include(c => c.IdentityUser).Include(c => c.Weekday).Single();
+
             if (customer == null)
             {
                 return NotFound();
             }
             ViewData["AddressId"] = new SelectList(_context.Addresses, "Id", "Id", customer.AddressId);
             ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id", customer.IdentityUserId);
-            ViewData["DayId"] = new SelectList(_context.Weekdays, "Id", "Id", customer.DayId);
+            ViewData["DayId"] = new SelectList(_context.Weekdays, "Id", "day", customer.DayId);
             return View(customer);
         }
 
@@ -126,17 +130,20 @@ namespace TrashCollection.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,IdentityUserId,AddressId,DayId,FirstName,LastName,SuspendStert,SuspendEnd")] Customer customer)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,IdentityUserId,AddressId,DayId,FirstName,LastName,SuspendStert,SuspendEnd")] Customer editcustomer)
         {
-            if (id != customer.Id)
+            if (id != editcustomer.Id)
             {
                 return NotFound();
             }
-
+            var customer = _context.Customers.Where(c => c.Id == id).Include(c => c.Address).Include(c => c.IdentityUser).Include(c => c.Weekday).Single();
             if (ModelState.IsValid)
             {
                 try
                 {
+                    customer.FirstName = editcustomer.FirstName;
+                    customer.LastName = editcustomer.LastName;
+
                     _context.Update(customer);
                     await _context.SaveChangesAsync();
                 }
@@ -155,7 +162,94 @@ namespace TrashCollection.Controllers
             }
             ViewData["AddressId"] = new SelectList(_context.Addresses, "Id", "Id", customer.AddressId);
             ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id", customer.IdentityUserId);
-            ViewData["DayId"] = new SelectList(_context.Weekdays, "Id", "Id", customer.DayId);
+            ViewData["DayId"] = new SelectList(_context.Weekdays, "Id", "day", customer.DayId);
+            return View(customer);
+        }
+        public async Task<IActionResult> EditDay()
+        {
+            var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var customer = _context.Customers.Where(c => c.IdentityUserId == userId).Include(c => c.Address).Include(c => c.IdentityUser).Include(c => c.Weekday).Single();
+
+            ViewData["DayId"] = new SelectList(_context.Weekdays, "Id", "day", customer.DayId);
+            return View(customer);
+        }
+
+        // POST: Customers/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
+        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditDay( [Bind("DayId")] Customer editcustomer)
+        {
+            var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var customer = _context.Customers.Where(c => c.IdentityUserId == userId).Include(c => c.Address).Include(c => c.IdentityUser).Include(c => c.Weekday).Single();
+
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    customer.DayId = editcustomer.DayId;
+                    _context.Update(customer);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!CustomerExists(customer.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["DayId"] = new SelectList(_context.Weekdays, "Id", "day", customer.DayId);
+            return View(customer);
+        }
+        public async Task<IActionResult> EditName()
+        {
+            var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var customer = _context.Customers.Where(c => c.IdentityUserId == userId).Include(c => c.Address).Include(c => c.IdentityUser).Include(c => c.Weekday).Single();
+
+            return View(customer);
+        }
+
+        // POST: Customers/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
+        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditName([Bind("DayId")] Customer editcustomer)
+        {
+            var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var customer = _context.Customers.Where(c => c.IdentityUserId == userId).Include(c => c.Address).Include(c => c.IdentityUser).Include(c => c.Weekday).Single();
+
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    customer.DayId = editcustomer.DayId;
+                    _context.Update(customer);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!CustomerExists(customer.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["DayId"] = new SelectList(_context.Weekdays, "Id", "day", customer.DayId);
             return View(customer);
         }
 
@@ -199,13 +293,23 @@ namespace TrashCollection.Controllers
         {
             var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var customer = _context.Customers.Where(c => c.IdentityUserId == userId).Include(c => c.Address).Include(c => c.IdentityUser).Include(c => c.Weekday).Single();
-            var address = customer.Address;
 
-            return View(address);
+            return View(customer.Address);
         }
         [HttpPost]
         public async Task<IActionResult> CreateAddressPage(Address address)
         {
+            //try
+            //{
+            //    var deleteaddress = _context.Addresses.Where(c => c.Id == address.Id).Single();
+            //    _context.Addresses.Remove(deleteaddress);
+            //    await _context.SaveChangesAsync();
+            //}
+            //catch (Exception)
+            //{
+
+            //    //if the entry doesnt exist, do nothing.
+            //}
             _context.Update(address);
             await _context.SaveChangesAsync();
             var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -215,7 +319,66 @@ namespace TrashCollection.Controllers
             await _context.SaveChangesAsync();
             return View("Index",customer);
         }
+        public async Task<IActionResult> EditSuspend()
+        {
 
+
+            var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var customer = _context.Customers.Where(c => c.IdentityUserId == userId).Include(c => c.Address).Include(c => c.IdentityUser).Include(c => c.Weekday).Single();
+
+           
+           
+            return View(customer);
+        }
+
+        // POST: Customers/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
+        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditSuspend([Bind("Id,IdentityUserId,AddressId,DayId,FirstName,LastName,SuspendStart,SuspendEnd")] Customer editcustomer)
+        {
+            var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);    
+            
+            var customer = _context.Customers.Where(c => c.IdentityUserId == userId).Include(c => c.Address).Include(c => c.IdentityUser).Include(c => c.Weekday).Single();
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    customer.SuspendStart = editcustomer.SuspendStart;
+                    customer.SuspendEnd = editcustomer.SuspendEnd;
+
+                    _context.Update(customer);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!CustomerExists(customer.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+         
+            return View(customer);
+        }
+        public async Task<IActionResult> ClearSuspend()
+        {
+            var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var customer = _context.Customers.Where(c => c.IdentityUserId == userId).Include(c => c.Address).Include(c => c.IdentityUser).Include(c => c.Weekday).Single();
+            customer.SuspendStart=null;
+            customer.SuspendEnd=null;
+            _context.Update(customer);
+            await _context.SaveChangesAsync();
+            var pickups = _context.Pickups.Where(p => p.CustomerId == customer.Id);
+
+            return View("Index", customer);
+        }
 
     }
 }

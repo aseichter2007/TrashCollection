@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -63,9 +64,18 @@ namespace TrashCollection.Controllers
         {
             if (ModelState.IsValid)
             {
+                var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                var customer = _context.Customers.Where(c => c.IdentityUserId == userId).Include(c => c.Address).Include(c => c.IdentityUser).Include(c => c.Weekday).Single();
+                pickup.AddressId = customer.AddressId;
+                pickup.CustomerId = customer.Id;
+                
                 _context.Add(pickup);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                var pickups = _context.Pickups.Where(p => p.CustomerId == customer.Id);
+                ViewBag.pickups = pickups.ToList();
+
+                return RedirectToAction("Index", "Customers");
             }
             ViewData["AddressId"] = new SelectList(_context.Addresses, "Id", "Id", pickup.AddressId);
             ViewData["CustomerId"] = new SelectList(_context.Customers, "Id", "Id", pickup.CustomerId);
@@ -155,7 +165,8 @@ namespace TrashCollection.Controllers
             var pickup = await _context.Pickups.FindAsync(id);
             _context.Pickups.Remove(pickup);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+           
+            return RedirectToAction("Index","Customers");
         }
 
         private bool PickupExists(int id)

@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TrashCollection.Data;
 
 namespace TrashCollection.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200523151259_CustomerBalance")]
+    partial class CustomerBalance
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,15 +50,15 @@ namespace TrashCollection.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "4a8fdc5b-33a4-4b05-a171-9db29c599ab5",
-                            ConcurrencyStamp = "4fa322c4-cff1-4288-b937-7a3e8042caf4",
+                            Id = "0b0f7734-3dc2-416b-b585-9244773e5b88",
+                            ConcurrencyStamp = "8e37f37b-0941-4d8f-94c6-2549c3ff23ac",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
-                            Id = "37b6986b-5fcb-49eb-ba2e-9e5da02d9b2b",
-                            ConcurrencyStamp = "1bd7a6ec-9cbe-4e15-9365-ec7d0ddcc6fe",
+                            Id = "a805249e-060e-4fad-9df6-490e79bdce32",
+                            ConcurrencyStamp = "567cfeaf-17a3-4b0a-877a-214c330b3306",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         });
@@ -286,7 +288,7 @@ namespace TrashCollection.Data.Migrations
                     b.Property<string>("SuspendEnd")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("SuspendStart")
+                    b.Property<string>("SuspendStert")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

@@ -1,21 +1,69 @@
 ﻿@model TrashCollection.Models.Customer
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Customer Home";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
+<h1>Customer Portal</h1>
 
 <p>
    <div>Weclome, @Model.FirstName, to the customer portal</div>
 </p>
 <p>
     Your scheduled pickup day is @Model.Weekday.day  |
-    <a asp-action="EditDay" asp-route-id="@Model.Id">Change weekly pickup.</a> 
+    <a asp-action="EditDay">Change weekly pickup.</a> 
+</p>
+<p>
+    <a asp-controller="pickups" asp-action="create">Schedule a one time pickup</a>
+    <div>Scheduled Pickups</div>
+    @if (ViewBag.pickups != null)
+    {
+        @foreach (var item in ViewBag.pickups)
+        {
+            <div>@item.Date</div><a asp-controller="Pickups" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+
+        }
+    }
+
+</p>
+<p>
+    @if (Model.SuspendStart != null || Model.SuspendStart != null)
+    {
+        <div> Service is suspended between:</div>
+        <div>@Model.SuspendStart</div>
+        <div>@Model.SuspendEnd</div>
+        <a asp-action="ClearSuspend">Resume collection.</a>
+
+    }
+    else
+    {
+        <div>Temporarily suspend colleciton services. </div>
+        <a asp-action="EditSuspend">Suspend collection.</a>
+    }
+
+
+</p>
+<p>
+    <div> Account details:</div>
+    <div>First Name : @Model.FirstName</div>
+    <div>Last Name : @Model.LastName</div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit Name</a> 
+
+</p>
+<p>
+    <div>Account Balance: @Model.Balance</div>    
 </p>
 
-                <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@Model.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@Model.Id">Delete</a>
+<p>
+    <div>Service Address:</div>
+    <div>@Model.Address.AddressLineOne</div>
+    <div>@Model.Address.AddressLineTwo</div>
+    <div>@Model.Address.City</div>
+    <div>@Model.Address.State</div>
+    <div>@Model.Address.ZipCode</div>
+    <a asp-action="CreateAddressPage">Change your service address.</a>
+</p>
+
+<a asp-action="Delete" asp-route-id="@Model.Id">Delete my account.</a>
   

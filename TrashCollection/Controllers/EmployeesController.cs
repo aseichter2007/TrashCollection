@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
@@ -25,8 +26,19 @@ namespace TrashCollection.Controllers
         // GET: Employees
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Employees.Include(e => e.Address).Include(e => e.IdentityUser);
-            return View(await applicationDbContext.ToListAsync());
+            Employee applicationDbContext;
+            try
+            {
+                var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);  
+                applicationDbContext = _context.Employees.Where(c => c.IdentityUserId == userId).Include(c => c.Address).Include(c => c.IdentityUser).Single();
+
+
+            }
+            catch (Exception)
+            {
+                return View("Create");
+            }
+            return View(applicationDbContext);
         }
 
         // GET: Employees/Details/5
@@ -62,10 +74,12 @@ namespace TrashCollection.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,IdentityUserId,AddressId,FirstName,LastName")] Employee employee)
+        public async Task<IActionResult> Create( Employee employee)
         {
             if (ModelState.IsValid)
             {
+                var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+                employee.IdentityUserId = userId;
                 _context.Add(employee);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));

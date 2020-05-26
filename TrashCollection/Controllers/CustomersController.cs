@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 using TrashCollection.Data;
 using TrashCollection.Models;
 
@@ -111,6 +112,13 @@ namespace TrashCollection.Controllers
             }
             ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id", customer.IdentityUserId);
             ViewData["DayId"] = new SelectList(_context.Weekdays, "Id", "Id", customer.DayId);
+            var pickups = _context.Pickups.Where(p => p.CustomerId == customer.Id && p.Confirmed == false);
+            ViewBag.pickups = pickups.ToList();
+            ViewBag.ConfirmedPickups = _context.Pickups.Where(p => p.CustomerId == customer.Id && p.Confirmed == true);
+            foreach (Pickup item in ViewBag.ConfirmedPickups)
+            {
+                customer.Balance += item.Price;
+            }
             return View(customer);
         }
 
@@ -172,6 +180,13 @@ namespace TrashCollection.Controllers
             ViewData["AddressId"] = new SelectList(_context.Addresses, "Id", "Id", customer.AddressId);
             ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id", customer.IdentityUserId);
             ViewData["DayId"] = new SelectList(_context.Weekdays, "Id", "day", customer.DayId);
+            var pickups = _context.Pickups.Where(p => p.CustomerId == customer.Id && p.Confirmed == false);
+            ViewBag.pickups = pickups.ToList();
+            ViewBag.ConfirmedPickups = _context.Pickups.Where(p => p.CustomerId == customer.Id && p.Confirmed == true);
+            foreach (Pickup item in ViewBag.ConfirmedPickups)
+            {
+                customer.Balance += item.Price;
+            }
             return View(customer);
         }
         public async Task<IActionResult> EditDay()
@@ -216,6 +231,13 @@ namespace TrashCollection.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["DayId"] = new SelectList(_context.Weekdays, "Id", "day", customer.DayId);
+            var pickups = _context.Pickups.Where(p => p.CustomerId == customer.Id && p.Confirmed == false);
+            ViewBag.pickups = pickups.ToList();
+            ViewBag.ConfirmedPickups = _context.Pickups.Where(p => p.CustomerId == customer.Id && p.Confirmed == true);
+            foreach (Pickup item in ViewBag.ConfirmedPickups)
+            {
+                customer.Balance += item.Price;
+            }
             return View(customer);
         }
         public async Task<IActionResult> EditName()
@@ -256,8 +278,13 @@ namespace TrashCollection.Controllers
                         throw;
                     }
                 }
-                var pickups = _context.Pickups.Where(p => p.CustomerId == customer.Id);
+                var pickups = _context.Pickups.Where(p => p.CustomerId == customer.Id && p.Confirmed == false);
                 ViewBag.pickups = pickups.ToList();
+                ViewBag.ConfirmedPickups = _context.Pickups.Where(p => p.CustomerId == customer.Id && p.Confirmed == true);
+                foreach (Pickup item in ViewBag.ConfirmedPickups)
+                {
+                    customer.Balance += item.Price;
+                }
                 return RedirectToAction(nameof(Index));
             }
             ViewData["DayId"] = new SelectList(_context.Weekdays, "Id", "day", customer.DayId);
@@ -337,15 +364,18 @@ namespace TrashCollection.Controllers
             ApiKey apikey = _context.ApiKeys.Where(k => k.Id == 1).Single();
             //why is retrieving the string adding \r\n to my key? that cost me an hour.
             string key = apikey.Key.Substring(0, 32);
-            string request = "http://www.mapquestapi.com/geocoding/v1/address?key=" + key + "&street=" + getcoord.AddressLineOne.Replace(' ', '+') + "&city=" + getcoord.City.Replace(' ', '+') + "&state=" + getcoord.State + "&postalcode=" + getcoord.ZipCode;
-            var addressdata = await client.GetAsync(request + "outFormat=xml");
+            string request = "http://www.mapquestapi.com/geocoding/v1/address?key=" + key + "&street=" + getcoord.AddressLineOne.Replace(' ', '+') + "&city=" + getcoord.City.Replace(' ', '+') + "&state=" + getcoord.State.Replace(' ', '+') + "&postalcode=" + getcoord.ZipCode;
+            var addressdata = await client.GetAsync(request );
+            //addressdata.Content.Headers.ContentDisposition.Name.WhoeverDesignedThis.CanEatMyShorts.tostring();
+            //begin horror show
             string letmesee = await addressdata.Content.ReadAsStringAsync();
+            //JObject letstryit = JObject.Parse(letmesee); //still not very friendly. if the mess below didnt work I would dig here some more.
+            
             char[] splitter = new char[2] { '{', '}' };
-
             string[] spilit = letmesee.Split(splitter);
             string[] splitmore = spilit[12].Split(':');
-            string lattitude = splitmore[2];            
-            string longitude = splitmore[3];
+            string lattitude = splitmore[1].Substring(0,9);//these backslashes make dealing with this extra confusing      
+            string longitude = splitmore[2];
             TrashCollection.Models.Address setcoord = _context.Addresses.Where(a => a.Id == customer.AddressId).Single();
             setcoord.Coordinate = lattitude + ", " + longitude;
             //holy crap thats a mess, but I don't know how to make and recieve a model without messing with my already established database
@@ -353,8 +383,13 @@ namespace TrashCollection.Controllers
             await _context.SaveChangesAsync();
             //_context.Update(setcoord);
             //await _context.SaveChangesAsync();
-            var pickups = _context.Pickups.Where(p => p.CustomerId == customer.Id);
+            var pickups = _context.Pickups.Where(p => p.CustomerId == customer.Id && p.Confirmed == false);
             ViewBag.pickups = pickups.ToList();
+            ViewBag.ConfirmedPickups = _context.Pickups.Where(p => p.CustomerId == customer.Id && p.Confirmed == true);
+            foreach (Pickup item in ViewBag.ConfirmedPickups)
+            {
+                customer.Balance += item.Price;
+            }
             return View("Index",customer);
         }
         public async Task<IActionResult> EditSuspend()
@@ -364,6 +399,7 @@ namespace TrashCollection.Controllers
             var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var customer = _context.Customers.Where(c => c.IdentityUserId == userId).Include(c => c.Address).Include(c => c.IdentityUser).Include(c => c.Weekday).Single();
 
+           
            
            
             return View(customer);
@@ -404,8 +440,13 @@ namespace TrashCollection.Controllers
                 ViewBag.pickups = pickup.ToList();
                 return RedirectToAction(nameof(Index));
             }
-            var pickups = _context.Pickups.Where(p => p.CustomerId == customer.Id);
+            var pickups = _context.Pickups.Where(p => p.CustomerId == customer.Id && p.Confirmed == false);
             ViewBag.pickups = pickups.ToList();
+            ViewBag.ConfirmedPickups = _context.Pickups.Where(p => p.CustomerId == customer.Id && p.Confirmed == true);
+            foreach (Pickup item in ViewBag.ConfirmedPickups)
+            {
+                customer.Balance += item.Price;
+            }
             return View(customer);
         }
         public async Task<IActionResult> ClearSuspend()
@@ -416,9 +457,13 @@ namespace TrashCollection.Controllers
             customer.SuspendEnd=null;
             _context.Update(customer);
             await _context.SaveChangesAsync();
-            var pickups = _context.Pickups.Where(p => p.CustomerId == customer.Id);
+            var pickups = _context.Pickups.Where(p => p.CustomerId == customer.Id && p.Confirmed == false);
             ViewBag.pickups = pickups.ToList();
-
+            ViewBag.ConfirmedPickups = _context.Pickups.Where(p => p.CustomerId == customer.Id && p.Confirmed == true);
+            foreach (Pickup item in ViewBag.ConfirmedPickups)
+            {
+                customer.Balance += item.Price;
+            }
             return View("Index", customer);
         }
 

@@ -5,6 +5,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<iframe src="https://maps.google.com/maps?q=@Model.Address.Coordinate&z=15&output=embed" width="360" height="270" frameborder="0" style="border:0"></iframe>
 
 <div>
     <h4>Customer Details</h4>
@@ -46,9 +47,11 @@
         </dd>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Address.ZipCode)
-        </dd>        
+        </dd>
     </dl>
 </div>
 <div>
+
     <a asp-action="Index">Back to employee portal</a>
+
 </div>

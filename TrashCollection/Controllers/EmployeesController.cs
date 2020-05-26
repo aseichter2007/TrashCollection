@@ -126,7 +126,9 @@ namespace TrashCollection.Controllers
             {
                 return NotFound();
             }
-
+            ApiKey key = _context.ApiKeys.Where(k => k.Id == 2).Single();
+            string apikey = key.Key;
+            ViewBag.key = apikey;
             return View(customer);
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO.Pipes;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -50,8 +51,7 @@ namespace TrashCollection.Controllers
         // GET: Pickups/Create
         public IActionResult Create()
         {
-            ViewData["AddressId"] = new SelectList(_context.Addresses, "Id", "Id");
-            ViewData["CustomerId"] = new SelectList(_context.Customers, "Id", "Id");
+            Pickup pickup = new Pickup();
             return View();
         }
 
@@ -60,24 +60,33 @@ namespace TrashCollection.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,CustomerId,AddressId,Date,regular,Confirmed,earlyPickup,price")] Pickup pickup)
+        public async Task<IActionResult> Create([Bind("Date")] Pickup pickup)
         {
             if (ModelState.IsValid)
             {
                 var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
-
                 var customer = _context.Customers.Where(c => c.IdentityUserId == userId).Include(c => c.Address).Include(c => c.IdentityUser).Include(c => c.Weekday).Single();
-                pickup.AddressId = customer.AddressId;
                 pickup.CustomerId = customer.Id;
+                pickup.AddressID = customer.AddressId;
+                pickup.Regular = false;
+                pickup.price = 3;
+               
+                if (pickup.Date.DayOfWeek==DayOfWeek.Saturday)
+                {
+                    pickup.price = 4;
+                }
+                else if (pickup.Date.DayOfWeek==DayOfWeek.Sunday)
+                {
+                    pickup.price = 5;
+                }
+
                 
+
                 _context.Add(pickup);
                 await _context.SaveChangesAsync();
-                var pickups = _context.Pickups.Where(p => p.CustomerId == customer.Id);
-                ViewBag.pickups = pickups.ToList();
-
                 return RedirectToAction("Index", "Customers");
             }
-            ViewData["AddressId"] = new SelectList(_context.Addresses, "Id", "Id", pickup.AddressId);
+            ViewData["AddressID"] = new SelectList(_context.Addresses, "Id", "Id", pickup.AddressID);
             ViewData["CustomerId"] = new SelectList(_context.Customers, "Id", "Id", pickup.CustomerId);
             return View(pickup);
         }
@@ -95,7 +104,7 @@ namespace TrashCollection.Controllers
             {
                 return NotFound();
             }
-            ViewData["AddressId"] = new SelectList(_context.Addresses, "Id", "Id", pickup.AddressId);
+            ViewData["AddressID"] = new SelectList(_context.Addresses, "Id", "Id", pickup.AddressID);
             ViewData["CustomerId"] = new SelectList(_context.Customers, "Id", "Id", pickup.CustomerId);
             return View(pickup);
         }
@@ -105,7 +114,7 @@ namespace TrashCollection.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,CustomerId,AddressId,Date,regular,Confirmed,earlyPickup,price")] Pickup pickup)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,CustomerId,AddressID,Date,Regular,price")] Pickup pickup)
         {
             if (id != pickup.Id)
             {
@@ -132,7 +141,7 @@ namespace TrashCollection.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AddressId"] = new SelectList(_context.Addresses, "Id", "Id", pickup.AddressId);
+            ViewData["AddressID"] = new SelectList(_context.Addresses, "Id", "Id", pickup.AddressID);
             ViewData["CustomerId"] = new SelectList(_context.Customers, "Id", "Id", pickup.CustomerId);
             return View(pickup);
         }
@@ -165,8 +174,7 @@ namespace TrashCollection.Controllers
             var pickup = await _context.Pickups.FindAsync(id);
             _context.Pickups.Remove(pickup);
             await _context.SaveChangesAsync();
-           
-            return RedirectToAction("Index","Customers");
+            return RedirectToAction("Index", "Customers");
         }
 
         private bool PickupExists(int id)

@@ -26,7 +26,6 @@ namespace TrashCollection.Models
         public string LastName { get; set; }  
 
         
-        IEnumerable<Pickup> pickups { get; set; }
 
     }
 }

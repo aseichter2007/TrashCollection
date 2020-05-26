@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Internal;
 using TrashCollection.Data;
 using TrashCollection.Models;
 
@@ -38,6 +39,45 @@ namespace TrashCollection.Controllers
             {
                 return View("Create");
             }
+            string date = DateTime.UtcNow.ToString("MM-dd-yyyy");
+            
+            int day = ((int)DateTime.Now.DayOfWeek == 0) ? 7 : (int)DateTime.Now.DayOfWeek;
+            day -= day * 2;
+            var weekdays = _context.Weekdays;
+            List<List<Address>> weeksRegularPickups = new List<List<Address>>();
+            DateTime dateTime = DateTime.Today;
+
+            int todayId = (int)dateTime.DayOfWeek;
+            int count = 0;
+            for (int i = day; i < 0; i--)
+            {
+                List<Address> addresses = new List<Address>();
+                List<Customer> todayscustomers = _context.Customers.Where(c => c.DayId == i && c.Address.ZipCode == applicationDbContext.Address.ZipCode).ToList();
+                foreach (var customer in todayscustomers)
+                {
+                    addresses.Add(customer.Address);
+                }
+                weeksRegularPickups.Add(addresses);
+                if (count==6)
+                {
+                    break;
+                }
+                if (i==-7)
+                {
+                    i = 0;
+                }
+                count++;
+            }
+            List<List<Pickup>> extraPickups = new List<List<Pickup>>();
+            for (int i = 7; i > 0; i++)
+            {
+                List<Pickup> dayspickups = _context.Pickups.Where(p => p.Date.Day == dateTime.Day).ToList();
+                extraPickups.Add(dayspickups);
+                dateTime.AddDays(1);
+            }
+            ViewBag.IrregularPickups = extraPickups;
+            ViewBag.Pickupaddress = weeksRegularPickups;
+
             return View(applicationDbContext);
         }
 

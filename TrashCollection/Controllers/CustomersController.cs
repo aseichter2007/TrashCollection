@@ -247,6 +247,8 @@ namespace TrashCollection.Controllers
                         throw;
                     }
                 }
+                var pickups = _context.Pickups.Where(p => p.CustomerId == customer.Id);
+                ViewBag.pickups = pickups.ToList();
                 return RedirectToAction(nameof(Index));
             }
             ViewData["DayId"] = new SelectList(_context.Weekdays, "Id", "day", customer.DayId);
@@ -317,6 +319,8 @@ namespace TrashCollection.Controllers
             customer.AddressId = address.Id;
             _context.Update(customer);
             await _context.SaveChangesAsync();
+            var pickups = _context.Pickups.Where(p => p.CustomerId == customer.Id);
+            ViewBag.pickups = pickups.ToList();
             return View("Index",customer);
         }
         public async Task<IActionResult> EditSuspend()
@@ -362,9 +366,12 @@ namespace TrashCollection.Controllers
                         throw;
                     }
                 }
+                var pickup = _context.Pickups.Where(p => p.CustomerId == customer.Id);
+                ViewBag.pickups = pickup.ToList();
                 return RedirectToAction(nameof(Index));
             }
-         
+            var pickups = _context.Pickups.Where(p => p.CustomerId == customer.Id);
+            ViewBag.pickups = pickups.ToList();
             return View(customer);
         }
         public async Task<IActionResult> ClearSuspend()
@@ -376,6 +383,7 @@ namespace TrashCollection.Controllers
             _context.Update(customer);
             await _context.SaveChangesAsync();
             var pickups = _context.Pickups.Where(p => p.CustomerId == customer.Id);
+            ViewBag.pickups = pickups.ToList();
 
             return View("Index", customer);
         }

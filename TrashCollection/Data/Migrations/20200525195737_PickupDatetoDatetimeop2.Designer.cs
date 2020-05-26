@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TrashCollection.Data;
 
 namespace TrashCollection.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200525195737_PickupDatetoDatetimeop2")]
+    partial class PickupDatetoDatetimeop2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,15 +50,15 @@ namespace TrashCollection.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "2498889e-3ef6-4678-9045-38e2926ce50e",
-                            ConcurrencyStamp = "85be9a40-f1c5-4236-8527-aaf5ed8f7fb3",
+                            Id = "1d235a9d-1cf8-4df5-9898-bdffd7579082",
+                            ConcurrencyStamp = "4ef808bd-6a61-4118-8f1e-9cb2c73f31c5",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
-                            Id = "fef58335-618e-4f19-8f2b-5239bd0836ec",
-                            ConcurrencyStamp = "ef40aa6d-bf9e-46f8-beab-37129405bb8d",
+                            Id = "303dc517-ee37-44ed-875a-bb223ffde898",
+                            ConcurrencyStamp = "e9aa4aaa-f0a8-42ef-8809-8519e4478308",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         });
@@ -283,11 +285,11 @@ namespace TrashCollection.Data.Migrations
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("SuspendEnd")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("SuspendEnd")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("SuspendStart")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("SuspendStart")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

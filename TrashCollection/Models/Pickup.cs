@@ -14,20 +14,18 @@ namespace TrashCollection.Models
         [ForeignKey("Customer")]
         public int CustomerId { get; set; }
         public Customer Customer { get; set; }
+
         [ForeignKey("Address")]
-        public int AddressId { get; set; }
+        public int AddressID { get; set; }
         public Address Address { get; set; }
-        [Display(Name = "Pickup date:")]
+        [Display(Name = "Date of Pickup:")]
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
 
-        public int Date { get; set; }
-        public bool regular { get; set; }
-        public bool Confirmed { get; set; }
-        public bool earlyPickup { get; set; }
-        [Display(Name = "This pickup cost:")]
-
+        public DateTime Date { get; set; }
+        public bool Regular { get; set; }
+        [Display(Name= "Pickup cost:")]
         public double price { get; set; }
-
-
 
     }
 }

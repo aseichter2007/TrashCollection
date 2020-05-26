@@ -8,6 +8,10 @@
   <ItemGroup>
     <Compile Remove="Data\Migrations\20200525025708_addedDisplayNamesToModels.cs" />
     <Compile Remove="Data\Migrations\20200525025708_addedDisplayNamesToModels.Designer.cs" />
+    <Compile Remove="Data\Migrations\20200525192523_ChangedPickupDatetoDatetime.cs" />
+    <Compile Remove="Data\Migrations\20200525192523_ChangedPickupDatetoDatetime.Designer.cs" />
+    <Compile Remove="Data\Migrations\20200525193553_PickupDatetoDatetime.cs" />
+    <Compile Remove="Data\Migrations\20200525193553_PickupDatetoDatetime.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

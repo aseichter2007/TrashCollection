@@ -28,11 +28,15 @@ namespace TrashCollection.Models
 
         public string LastName { get; set; }
         [Display(Name = "Suspend start date:")]
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
 
-        public string SuspendStart { get; set; }
+        public DateTime? SuspendStart { get; set; }
         [Display(Name = "Suspend end date:")]
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
 
-        public string SuspendEnd { get; set; }
+        public DateTime? SuspendEnd { get; set; }
         [Display(Name = "Balance due:")]
 
         public string Balance { get; set; }

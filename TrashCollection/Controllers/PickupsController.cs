@@ -69,15 +69,15 @@ namespace TrashCollection.Controllers
                 pickup.CustomerId = customer.Id;
                 pickup.AddressID = customer.AddressId;
                 pickup.Regular = false;
-                pickup.price = 3;
+                pickup.Price = 3;
                
                 if (pickup.Date.DayOfWeek==DayOfWeek.Saturday)
                 {
-                    pickup.price = 4;
+                    pickup.Price = 4;
                 }
                 else if (pickup.Date.DayOfWeek==DayOfWeek.Sunday)
                 {
-                    pickup.price = 5;
+                    pickup.Price = 5;
                 }
 
                 

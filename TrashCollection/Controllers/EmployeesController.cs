@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Internal;
 using TrashCollection.Data;
@@ -27,11 +28,11 @@ namespace TrashCollection.Controllers
         // GET: Employees
         public async Task<IActionResult> Index()
         {
-            Employee applicationDbContext;
+            Employee employee;
             try
             {
                 var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);  
-                applicationDbContext = _context.Employees.Where(c => c.IdentityUserId == userId).Include(c => c.Address).Include(c => c.IdentityUser).Single();
+                employee = _context.Employees.Where(c => c.IdentityUserId == userId).Include(c => c.Address).Include(c => c.IdentityUser).Single();
 
 
             }
@@ -39,46 +40,54 @@ namespace TrashCollection.Controllers
             {
                 return View("Create");
             }
-            string date = DateTime.UtcNow.ToString("MM-dd-yyyy");
             
             int day = ((int)DateTime.Now.DayOfWeek == 0) ? 7 : (int)DateTime.Now.DayOfWeek;
             day -= day * 2;
-            var weekdays = _context.Weekdays;
-            List<List<Address>> weeksRegularPickups = new List<List<Address>>();
-            DateTime dateTime = DateTime.Today;
-
-            int todayId = (int)dateTime.DayOfWeek;
-            int count = 0;
-            for (int i = day; i < 0; i--)
+            List<Pickup> todaysScheduledPickups = _context.Pickups.Where(p => p.Date == DateTime.Now.Date&&p.Address.ZipCode==employee.Address.ZipCode).Include(c => c.Address).ToList();
+            List<Customer> todaysRegularCustomers = _context.Customers.Where(c => c.DayId == day&&c.Address.ZipCode==employee.Address.ZipCode).Include(c => c.Address).ToList();
+            foreach (var pickup in todaysScheduledPickups)
             {
-                List<Address> addresses = new List<Address>();
-                List<Customer> todayscustomers = _context.Customers.Where(c => c.DayId == i && c.Address.ZipCode == applicationDbContext.Address.ZipCode).ToList();
-                foreach (var customer in todayscustomers)
-                {
-                    addresses.Add(customer.Address);
-                }
-                weeksRegularPickups.Add(addresses);
-                if (count==6)
-                {
-                    break;
-                }
-                if (i==-7)
-                {
-                    i = 0;
-                }
-                count++;
+                Customer customer = _context.Customers.Where(c => c.Id == pickup.CustomerId).Single();
+                todaysRegularCustomers.Remove(customer);
             }
-            List<List<Pickup>> extraPickups = new List<List<Pickup>>();
-            for (int i = 7; i > 0; i++)
-            {
-                List<Pickup> dayspickups = _context.Pickups.Where(p => p.Date.Day == dateTime.Day).ToList();
-                extraPickups.Add(dayspickups);
-                dateTime.AddDays(1);
-            }
-            ViewBag.IrregularPickups = extraPickups;
-            ViewBag.Pickupaddress = weeksRegularPickups;
+            
+            ViewBag.IrregularPickups = todaysScheduledPickups;
+            ViewBag.RegularCustomers = todaysRegularCustomers;
 
-            return View(applicationDbContext);
+            return View(employee); 
+        }
+        public async Task<IActionResult> Confirm(int? id)
+        {
+            Pickup pickup = _context.Pickups.Where(p => p.Id == id).Single();
+            pickup.Confirmed = true;
+            _context.Pickups.Update(pickup);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index");
+        }
+        public async Task<IActionResult> ConfirmRegular(int? id)
+        {
+            Pickup pickup = new Pickup();
+            Customer customer = _context.Customers.Where(p => p.Id == id).Include(c=>c.Address).Single();
+            pickup.CustomerId = customer.Id;
+            pickup.AddressID = customer.AddressId;
+            pickup.Date = DateTime.Now.Date;
+            pickup.Confirmed = true;
+            pickup.Regular = true;
+            if (DateTime.Now.DayOfWeek==DayOfWeek.Saturday)
+            {
+                pickup.Price = 3.50;
+            }
+            else if (DateTime.Now.DayOfWeek==DayOfWeek.Sunday)
+            {
+                pickup.Price = 4.50;
+            }
+            else
+            {
+                pickup.Price = 2;
+            }
+            _context.Pickups.Add(pickup);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index");
         }
 
         // GET: Employees/Details/5

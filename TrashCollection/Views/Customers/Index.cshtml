@@ -21,7 +21,7 @@
     {
         @foreach (var item in ViewBag.pickups)
         {
-            <div>@item.Date</div><a asp-controller="Pickups" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            <div>@item.Date</div><div>@item.Price.ToString("c").</div><a asp-controller="Pickups" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
 
         }
     }

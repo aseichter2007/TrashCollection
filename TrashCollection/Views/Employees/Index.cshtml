@@ -10,45 +10,78 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+<label>Irregular Pickups</label>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.IdentityUser)
+                Pickup address line one
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Address)
+                Pickup address line two
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.FirstName)
+                Pickup confirmend?
+            </th>
+
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in ViewBag.IrregularPickups)
+        {
+            <tr>
+                <td>
+                    @item.Address.AddressLineOne
+                </td>
+                <td>
+                    @item.Address.AddressLineTwo
+                </td>
+                <td>
+                    @item.Confirmed
+                </td>
+                <td>
+                    <a asp-action="Confirm" asp-route-id="@item.Id">Confirm Pickup</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<label>Regular Pickups</label>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Pickup address line one
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.LastName)
+                Pickup address line two
             </th>
+            <th>
+                Pickup confirmend?
+            </th>
+
             <th></th>
         </tr>
     </thead>
     <tbody>
 
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => Model.IdentityUser.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => Model.Address.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => Model.FirstName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => Model.LastName)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@Model.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@Model.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in ViewBag.RegularCustomers)
+        {
+            <tr>
+                <td>
+                    @item.Address.AddressLineOne
+                </td>
+                <td>
+                    @item.Address.AddressLineTwo
+                </td>
+                <td>
+                    false
+                </td>
+                <td>
+                    <a asp-action="ConfirmRegular" asp-route-id="@item.Id">Confirm Pickup</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

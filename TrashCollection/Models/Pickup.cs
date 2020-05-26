@@ -24,8 +24,9 @@ namespace TrashCollection.Models
 
         public DateTime Date { get; set; }
         public bool Regular { get; set; }
-        [Display(Name= "Pickup cost:")]
-        public double price { get; set; }
+        [Display(Name= "This pickup will cost:")]
+        public double Price { get; set; }
+        public bool Confirmed { get; set; }
 
     }
 }

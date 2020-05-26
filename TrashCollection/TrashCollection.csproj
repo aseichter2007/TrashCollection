@@ -12,6 +12,8 @@
     <Compile Remove="Data\Migrations\20200525192523_ChangedPickupDatetoDatetime.Designer.cs" />
     <Compile Remove="Data\Migrations\20200525193553_PickupDatetoDatetime.cs" />
     <Compile Remove="Data\Migrations\20200525193553_PickupDatetoDatetime.Designer.cs" />
+    <Compile Remove="Data\Migrations\20200526161804_Addgeothing.google.cs" />
+    <Compile Remove="Data\Migrations\20200526161804_Addgeothing.google.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

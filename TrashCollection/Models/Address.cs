@@ -10,20 +10,21 @@ namespace TrashCollection.Models
     {
         [Key]
         public int Id { get; set; }
-        [Display(Name = "Address line one")]
+        [Display(Name = "Address line one:")]
 
         public string AddressLineOne { get; set; }
-        [Display(Name = "Address line two")]
+        [Display(Name = "Address line two:")]
 
         public string AddressLineTwo { get; set; }
-        [Display(Name = "City")]
+        [Display(Name = "City:")]
 
         public string City { get; set; }
-        [Display(Name = "State")]
+        [Display(Name = "State:")]
 
         public string State { get; set; }
-        [Display(Name = "Zip Code")]
+        [Display(Name = "Zip Code:")]
 
         public string ZipCode { get; set; }
+        public string Coordinate { get; set; }
     }
 }

@@ -20,6 +20,7 @@ namespace TrashCollection.Data
         public DbSet<Employee>  Employees { get; set; }
         public DbSet<Pickup> Pickups { get; set; }
         public DbSet<Weekday> Weekdays { get; set; }
+        public DbSet<ApiKey> ApiKeys { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

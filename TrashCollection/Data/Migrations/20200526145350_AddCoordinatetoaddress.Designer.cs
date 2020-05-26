@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TrashCollection.Data;
 
 namespace TrashCollection.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200526145350_AddCoordinatetoaddress")]
+    partial class AddCoordinatetoaddress
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,15 +50,15 @@ namespace TrashCollection.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "79aaa04d-6c99-48c8-a019-9abc168d1221",
-                            ConcurrencyStamp = "8e05cc98-49e9-4bd4-a411-7eac65b2638c",
+                            Id = "b0a29eb9-6096-42ac-b85f-9bab5b49c0d0",
+                            ConcurrencyStamp = "c54b5e68-d44a-4be4-a57a-d513064dd8cb",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
-                            Id = "05ad7c17-34fe-4221-b03e-ee6764af66f7",
-                            ConcurrencyStamp = "8efc63eb-d14f-419d-9159-2494d2bf8435",
+                            Id = "c932dda3-238c-4bf2-847b-aa423e49d54e",
+                            ConcurrencyStamp = "e016f63d-b661-4b61-8a69-52755999edc2",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         });
@@ -259,21 +261,6 @@ namespace TrashCollection.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Addresses");
-                });
-
-            modelBuilder.Entity("TrashCollection.Models.ApiKey", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Key")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ApiKeys");
                 });
 
             modelBuilder.Entity("TrashCollection.Models.Customer", b =>

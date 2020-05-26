@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -16,10 +18,13 @@ namespace TrashCollection.Controllers
     public class CustomersController : Controller
     {
         private readonly ApplicationDbContext _context;
+        HttpClient client;
+
 
         public CustomersController(ApplicationDbContext context)
         {
             _context = context;
+            client = new HttpClient();
         }
 
         // GET: Customers
@@ -97,7 +102,7 @@ namespace TrashCollection.Controllers
                 //add IdenityUserId to customer object before it gets added to DB
                 var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
                 customer.IdentityUserId = userId;
-                Address address = new Address();
+                TrashCollection.Models.Address address = new TrashCollection.Models.Address();
                 customer.Address = address;
 
                 _context.Add(customer);
@@ -303,8 +308,9 @@ namespace TrashCollection.Controllers
             return View(customer.Address);
         }
         [HttpPost]
-        public async Task<IActionResult> CreateAddressPage(Address address)
+        public async Task<IActionResult> CreateAddressPage(TrashCollection.Models.Address address)
         {
+            //Thought about deleting old addresses, decided it's not important in the scope of this excercise
             //try
             //{
             //    var deleteaddress = _context.Addresses.Where(c => c.Id == address.Id).Single();
@@ -321,8 +327,32 @@ namespace TrashCollection.Controllers
             var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var customer = _context.Customers.Where(c => c.IdentityUserId == userId).Include(c => c.Address).Include(c => c.IdentityUser).Include(c => c.Weekday).Single();
             customer.AddressId = address.Id;
+
+
+
+
             _context.Update(customer);
             await _context.SaveChangesAsync();
+            TrashCollection.Models.Address getcoord = _context.Addresses.Where(a => a.Id == customer.AddressId).Single();
+            ApiKey apikey = _context.ApiKeys.Where(k => k.Id == 1).Single();
+            //why is retrieving the string adding \r\n to my key? that cost me an hour.
+            string key = apikey.Key.Substring(0, 32);
+            string request = "http://www.mapquestapi.com/geocoding/v1/address?key=" + key + "&street=" + getcoord.AddressLineOne.Replace(' ', '+') + "&city=" + getcoord.City.Replace(' ', '+') + "&state=" + getcoord.State + "&postalcode=" + getcoord.ZipCode;
+            var addressdata = await client.GetAsync(request + "outFormat=xml");
+            string letmesee = await addressdata.Content.ReadAsStringAsync();
+            char[] splitter = new char[2] { '{', '}' };
+
+            string[] spilit = letmesee.Split(splitter);
+            string[] splitmore = spilit[12].Split(':');
+            string lattitude = splitmore[2];            
+            string longitude = splitmore[3];
+            TrashCollection.Models.Address setcoord = _context.Addresses.Where(a => a.Id == customer.AddressId).Single();
+            setcoord.Coordinate = lattitude + ", " + longitude;
+            //holy crap thats a mess, but I don't know how to make and recieve a model without messing with my already established database
+            _context.Addresses.Update(setcoord);
+            await _context.SaveChangesAsync();
+            //_context.Update(setcoord);
+            //await _context.SaveChangesAsync();
             var pickups = _context.Pickups.Where(p => p.CustomerId == customer.Id);
             ViewBag.pickups = pickups.ToList();
             return View("Index",customer);

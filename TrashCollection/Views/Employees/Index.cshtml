@@ -1,16 +1,25 @@
 ﻿@model TrashCollection.Models.Employee
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Employee Portal";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
+<h1>Employee Portal</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<label>Irregular Pickups</label>
+<div>
+    <form asp-action="Preview">
+        <input type="hidden" asp-for="Id" />
+        <div class="form-group">
+            <label class="control-label">Choose a day to view future pickups:</label>
+            <select asp-for="AddressId" class="form-control" asp-items="ViewBag.DayId"></select>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Go" class="btn btn-primary" />
+        </div>
+    </form>
+</div>
+<h2>Today's irregular and confirmed regular pickups</h2>
 <table class="table">
     <thead>
         <tr>
@@ -47,7 +56,7 @@
         }
     </tbody>
 </table>
-<label>Regular Pickups</label>
+<H2>Regular Pickups</H2>
 <table class="table">
     <thead>
         <tr>
@@ -85,3 +94,5 @@
         }
     </tbody>
 </table>
+<a asp-action="Delete" asp-route-id="@Model.Id">Quit</a>
+

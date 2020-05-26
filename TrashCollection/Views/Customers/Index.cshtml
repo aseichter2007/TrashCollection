@@ -8,11 +8,11 @@
 <h1>Customer Portal</h1>
 
 <p>
-   <div>Weclome, @Model.FirstName, to the customer portal</div>
+    <div>Weclome, @Model.FirstName, to the customer portal</div>
 </p>
 <p>
     Your scheduled pickup day is @Model.Weekday.day  |
-    <a asp-action="EditDay">Change weekly pickup.</a> 
+    <a asp-action="EditDay">Change weekly pickup.</a>
 </p>
 <p>
     <a asp-controller="pickups" asp-action="create">Schedule a one time pickup</a>
@@ -48,11 +48,20 @@
     <div> Account details:</div>
     <div>First Name : @Model.FirstName</div>
     <div>Last Name : @Model.LastName</div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Edit Name</a> 
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit Name</a>
 
 </p>
+<div>Confirmed Pickups</div>
+@if (ViewBag.pickups != null)
+{
+    @foreach (var item in ViewBag.ConfirmedPickups)
+    {
+        <div>@item.Date</div><div>@item.Price.ToString("c")</div>
+
+    }
+}
 <p>
-    <div>Account Balance: @Model.Balance</div>    
+    <div>Account Balance: @Model.Balance</div>
 </p>
 
 <p>
@@ -66,4 +75,4 @@
 </p>
 
 <a asp-action="Delete" asp-route-id="@Model.Id">Delete my account.</a>
-  
+

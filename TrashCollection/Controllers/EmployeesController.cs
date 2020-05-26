@@ -50,11 +50,31 @@ namespace TrashCollection.Controllers
                 Customer customer = _context.Customers.Where(c => c.Id == pickup.CustomerId).Single();
                 todaysRegularCustomers.Remove(customer);
             }
+            foreach (Customer item in todaysRegularCustomers)
+            {
+                if (item.SuspendStart!=null&&item.SuspendEnd!=null)
+                {
+                    if (DateTime.Now.Date>=item.SuspendStart&&DateTime.Now.Date<=item.SuspendEnd)
+                    {
+                        todaysRegularCustomers.Remove(item);
+                    }
+                }
+            }
             
             ViewBag.IrregularPickups = todaysScheduledPickups;
             ViewBag.RegularCustomers = todaysRegularCustomers;
+            ViewData["DayId"] = new SelectList(_context.Weekdays, "Id", "day");
 
             return View(employee); 
+        }
+        public async Task<IActionResult> Preview(Employee dataemployee)
+        {
+            var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            Employee employee = _context.Employees.Where(c => c.IdentityUserId == userId).Include(c => c.Address).Include(c => c.IdentityUser).Single();
+
+            List<Customer> todaysRegularCustomers = _context.Customers.Where(c => c.DayId == dataemployee.AddressId && c.Address.ZipCode == employee.Address.ZipCode).Include(c => c.Address).ToList();
+
+            return View(todaysRegularCustomers);
         }
         public async Task<IActionResult> Confirm(int? id)
         {
@@ -98,16 +118,16 @@ namespace TrashCollection.Controllers
                 return NotFound();
             }
 
-            var employee = await _context.Employees
+            var customer = await _context.Customers
                 .Include(e => e.Address)
-                .Include(e => e.IdentityUser)
+                .Include(c=>c.Weekday)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (employee == null)
+            if (customer == null)
             {
                 return NotFound();
             }
 
-            return View(employee);
+            return View(customer);
         }
 
         // GET: Employees/Create

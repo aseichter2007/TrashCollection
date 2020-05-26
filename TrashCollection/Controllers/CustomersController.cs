@@ -47,9 +47,13 @@ namespace TrashCollection.Controllers
 
                 return View("CreateAddressPage",customer.Address);
             }
-            var pickups = _context.Pickups.Where(p => p.CustomerId == customer.Id);
+            var pickups = _context.Pickups.Where(p => p.CustomerId == customer.Id&&p.Confirmed==false);
             ViewBag.pickups = pickups.ToList();
-
+            ViewBag.ConfirmedPickups = _context.Pickups.Where(p => p.CustomerId == customer.Id && p.Confirmed == true);
+            foreach (Pickup item in ViewBag.ConfirmedPickups)
+            {
+                customer.Balance += item.Price;
+            }
             return View(customer);
         }
 

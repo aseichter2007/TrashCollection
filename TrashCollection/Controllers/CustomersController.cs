@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -56,12 +57,25 @@ namespace TrashCollection.Controllers
             var pickups = _context.Pickups.Where(p => p.CustomerId == customer.Id&&p.Confirmed==false);
             ViewBag.pickups = pickups.ToList();
             ViewBag.ConfirmedPickups = _context.Pickups.Where(p => p.CustomerId == customer.Id && p.Confirmed == true);
+            double balance = 0;
             foreach (Pickup item in ViewBag.ConfirmedPickups)
             {
-                customer.Balance += item.Price;
+               balance += item.Price;
             }
+            customer.Balance = balance.ToString("c");
             return View(customer);
         }
+        public IActionResult Payment()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> Payment(Customer customer)
+        {
+            return RedirectToAction("Index");
+        }
+
+
 
         // GET: Customers/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -374,7 +388,8 @@ namespace TrashCollection.Controllers
             char[] splitter = new char[2] { '{', '}' };
             string[] spilit = letmesee.Split(splitter);
             string[] splitmore = spilit[12].Split(':');
-            string lattitude = splitmore[1].Substring(0,9);//these backslashes make dealing with this extra confusing      
+            int commalocation = splitmore[1].IndexOf(',');
+            string lattitude = splitmore[1].Substring(0,commalocation);//these backslashes make dealing with this extra confusing      
             string longitude = splitmore[2];
             TrashCollection.Models.Address setcoord = _context.Addresses.Where(a => a.Id == customer.AddressId).Single();
             setcoord.Coordinate = lattitude + ", " + longitude;
@@ -457,13 +472,10 @@ namespace TrashCollection.Controllers
             customer.SuspendEnd=null;
             _context.Update(customer);
             await _context.SaveChangesAsync();
-            var pickups = _context.Pickups.Where(p => p.CustomerId == customer.Id && p.Confirmed == false);
+            var pickups = _context.Pickups.Where(p => p.CustomerId == customer.Id);
             ViewBag.pickups = pickups.ToList();
             ViewBag.ConfirmedPickups = _context.Pickups.Where(p => p.CustomerId == customer.Id && p.Confirmed == true);
-            foreach (Pickup item in ViewBag.ConfirmedPickups)
-            {
-                customer.Balance += item.Price;
-            }
+
             return View("Index", customer);
         }
 

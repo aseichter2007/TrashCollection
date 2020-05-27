@@ -60,11 +60,49 @@ namespace TrashCollection.Controllers
                     }
                 }
             }
-            
+            List<Address> todaysaddresses = new List<Address>();
+            foreach (var item in todaysRegularCustomers)
+            {
+                todaysaddresses.Add(item.Address);
+            }
+            foreach (var item in todaysScheduledPickups)
+            {
+                if (item.Confirmed==false)
+                {
+                    todaysaddresses.Add(item.Address);
+                }
+            }
+            int count = 1;
+            List<string> processedaddress = new List<string>();
+            double latAverage = 0;
+            double lonAverage = 0;
+            for (int i = 0; i < todaysaddresses.Count; i++)
+            {
+                var item = todaysaddresses[i]; 
+                int commafind = item.Coordinate.IndexOf(',');
+                latAverage += double.Parse(item.Coordinate.Substring(0, commafind));
+                lonAverage += double.Parse(item.Coordinate.Substring(commafind + 1));
+                if (i==todaysaddresses.Count-1)
+                {
+                    processedaddress.Add("['"+item.AddressLineOne+"'," + item.Coordinate + "," + count + " ]");
+                }
+                else
+                {
+                    processedaddress.Add("['" + item.AddressLineOne + "'," + item.Coordinate + "," + count + " ],");
+                }
+                count++;
+            }
+            latAverage /= todaysaddresses.Count;
+            lonAverage /= todaysaddresses.Count;
+
+            ViewBag.Mapcenter = latAverage.ToString() + "," + lonAverage.ToString();
+            ViewBag.Coordinates = processedaddress;
             ViewBag.IrregularPickups = todaysScheduledPickups;
             ViewBag.RegularCustomers = todaysRegularCustomers;
             ViewData["DayId"] = new SelectList(_context.Weekdays, "Id", "day");
-
+            ApiKey key = _context.ApiKeys.Where(k => k.Id == 2).Single();
+            string apikey = key.Key;
+            ViewBag.key = apikey;
             return View(employee); 
         }
         public async Task<IActionResult> Preview(Employee dataemployee)

@@ -52,16 +52,17 @@
 
 </p>
 <div>Confirmed Pickups</div>
-@if (ViewBag.ConfimedPickups != null)
-{
+
     @foreach (var item in ViewBag.ConfirmedPickups)
     {
         <div>@item.Date</div><div>@item.Price.ToString("c")</div>
 
     }
-}
+
 <p>
     <div>Account Balance: @Model.Balance</div>
+    <a asp-action="Payment">Pay Balance</a>
+
 </p>
 
 <p>
